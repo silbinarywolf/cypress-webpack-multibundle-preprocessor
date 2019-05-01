@@ -1,5 +1,8 @@
 # Cypress Webpack Multibundle Preprocessor
 
+[![Build Status](https://api.travis-ci.org/silbinarywolf/cypress-webpack-multibundle-preprocessor.svg?branch=master)](https://travis-ci.org/silbinarywolf/cypress-webpack-multibundle-preprocessor)
+[![npm Version](https://img.shields.io/npm/v/cypress-webpack-multibundle-preprocessor.svg)](https://www.npmjs.com/package/cypress-webpack-multibundle-preprocessor)
+
 Cypress preprocessor for bundling JavaScript via webpack.
 
 This differs from the [official implementation](https://github.com/cypress-io/cypress-webpack-preprocessor) as it will compile/bundle all spec tests found in the `cypress/integration` folder only once when you call `cypress run`, rather than run a seperate Webpack build per spec file.
