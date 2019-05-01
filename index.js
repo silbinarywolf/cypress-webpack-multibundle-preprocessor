@@ -171,82 +171,82 @@ const preprocessorWatch = (options, file) => {
 
 // preprocessorFullBuild 
 const preprocessorFullBuild = (options, file) => {
-  const filePath = file.filePath;
+  const filePath = file.filePath
 
   // since this function can get called multiple times with the same
   // filePath, we return the cached bundle promise if we already have one
   // since we don't want or need to re-initiate webpack for it
   if (bundles[filePath] !== undefined) {
-    log(`already have bundle for ${filePath}`);
-    return bundles[filePath].promise;
+    log(`already have bundle for ${filePath}`)
+    return bundles[filePath].promise
   } else {
     log(`no bundle ${filePath}`)
   }
 
   // Retrieve all spec files
-  let testFiles = [];
+  let testFiles = []
   {
     // Determine "cypress" path
-    let cypressFolder = '';
-    const dirParts = filePath.split(path.sep);
+    let cypressFolder = ''
+    const dirParts = filePath.split(path.sep)
     for (let i = dirParts.length - 1; i >= 0; i--) {
-      const dirPart = dirParts[i];
+      const dirPart = dirParts[i]
       if (dirPart === 'cypress') {
         // Built directory name from parts
         for (let j = 0; j <= i; j++) {
           if (cypressFolder !== '') {
-              cypressFolder += path.sep;
+            cypressFolder += path.sep
           }
-          cypressFolder += dirParts[j];
+          cypressFolder += dirParts[j]
         }
       }
     }
     if (cypressFolder === '') {
-      throw new Error('Cannot determine "cypress/integration" folder from spec filepath.');
+      throw new Error(`Cannot determine "cypress/integration" folder from spec filepath: ${filePath}`)
     }
 
-    const integrationFolder = cypressFolder + path.sep + 'integration';
+    const integrationFolder = `${cypressFolder + path.sep}integration`
 
-    filewalker(integrationFolder, function(err, fileList){
-      if(err){
-        throw err;
+    filewalker(integrationFolder, function (err, fileList) {
+      if (err) {
+        throw err
       }
       for (let filePath of fileList) {
-        const ext = path.extname(filePath);
+        const ext = path.extname(filePath)
         if (ext === '.js' ||
           ext === '.jsx' ||
           ext === '.ts' ||
           ext === '.tsx') {
-          testFiles.push(filePath);
+          testFiles.push(filePath)
         }
       }
-    });
+    })
     if (testFiles.length === 0) {
-      throw new Error('Cannot find any spec files in: ' + integrationFolder);
+      throw new Error(`Cannot find any spec files in: ${integrationFolder}`)
     }
-    const supportFile = cypressFolder + path.sep + 'support' + path.sep + 'index.js';
+    const supportFile = `${cypressFolder + path.sep}support${path.sep}index.js`
     if (fs.existsSync(supportFile)) {
-      testFiles.push(supportFile);
+      testFiles.push(supportFile)
     } else {
-      throw new Error('Missing support file: ' + supportFile);
+      throw new Error(`Missing support file: ${supportFile}`)
     }
   }
 
   // we're provided a default output path that lives alongside Cypress's
   // app data files so we don't have to worry about where to put the bundled
   // file on disk
-  let outputDir = '';
+  let outputDir = ''
   {
-    const dirParts = path.dirname(file.outputPath).split(path.sep);
+    const dirParts = path.dirname(file.outputPath).split(path.sep)
     for (let i = dirParts.length - 1; i >= 0; i--) {
-      const dirPart = dirParts[i];
+      const dirPart = dirParts[i]
       if (dirPart === 'cypress') {
-        outputDir = dirParts.slice(0, i+1).join(path.sep);
-        break;
+        outputDir = dirParts.slice(0, i + 1).join(path.sep)
+        break
       }
     }
     if (outputDir === '') {
-      throw new Error('Unable to find expected "cypress" directory part within outputPath: ' + file.outputPath);
+      throw new Error(`Unable to find expected "cypress" directory part within outputPath: ${file.outputPath}`)
     }
   }
 
@@ -267,28 +267,26 @@ const preprocessorFullBuild = (options, file) => {
       path: outputDir, // path.dirname(outputPath),
       chunkFilename: '[name].chunk.js',
       filename: (chunkData) => {
-        return chunkData.chunk.name;
-      }
+        return chunkData.chunk.name
+      },
     },
-  });
+  })
   testFiles.forEach((testFile) => {
-    const testFileKey = path.basename(testFile);
-    webpackOptions.entry[testFileKey] = testFile;
-    bundles[testFile] = createDeferred();
-  });
+    const testFileKey = path.basename(testFile)
+    webpackOptions.entry[testFileKey] = testFile
+    bundles[testFile] = createDeferred()
+  })
 
   const rejectWithErr = (err) => {
     err.filePath = filePath
     // backup the original stack before it's potentially modified by bluebird
     err.originalStack = err.stack
     log(`errored bundling ${outputDir}`, err)
-    testFiles.forEach((testFile) => {
-      for (let testFile in bundles) {
-        if (bundles[testFile] !== undefined) {
-          bundles[testFile].reject(err);
-        }
+    for (let testFile in bundles) {
+      if (bundles[testFile] !== undefined) {
+        bundles[testFile].reject(err)
       }
-    })
+    }
   }
 
   // this function is called when bundling is finished, once at the start
@@ -316,20 +314,20 @@ const preprocessorFullBuild = (options, file) => {
     // the file from
     for (let testFile in bundles) {
       if (bundles[testFile] === undefined) {
-        continue;
+        continue
       }
-      const outputPath = outputDir + path.sep + path.basename(testFile);
+      const outputPath = outputDir + path.sep + path.basename(testFile)
       if (!fs.existsSync(outputPath)) {
-        throw new Error('Bundle file missing. Possible error with Webpack configuration or Cypress preprocessor plugin.');
+        throw new Error('Bundle file missing. Possible error with Webpack configuration or Cypress preprocessor plugin.')
       }
-      bundles[testFile].resolve(outputPath);
+      bundles[testFile].resolve(outputPath)
     }
 
     log('finished bundling')
   }
 
-  const compiler = webpack(webpackOptions);
-  compiler.run(onBundleFinished);
+  const compiler = webpack(webpackOptions)
+  compiler.run(onBundleFinished)
 
   // return the promise, which will resolve with the outputPath or reject
   // with any error encountered
@@ -357,9 +355,9 @@ const preprocessor = (options = {}) => {
   // the supported file and spec file to be requested again
   return (file) => {
     if (file.shouldWatch) {
-      return preprocessorWatch(options, file);
+      return preprocessorWatch(options, file)
     }
-    return preprocessorFullBuild(options, file);
+    return preprocessorFullBuild(options, file)
   }
 }
 
@@ -381,45 +379,45 @@ Object.defineProperty(preprocessor, 'defaultOptions', {
  * @param {String} dir 
  * @param {Function} done 
  */
-function filewalker(dir, done) {
-  let results = [];
+function filewalker (dir, done) {
+  let results = []
 
-  let list = [];
+  let list = []
   try {
-    list = fs.readdirSync(dir);
+    list = fs.readdirSync(dir)
   } catch (err) {
-    return done(err);
+    return done(err)
   }
 
-  let pending = list.length;
+  let pending = list.length
 
-  if (!pending) return done(null, results);
+  if (!pending) return done(null, results)
 
-  list.forEach(function(file){
-    file = path.resolve(dir, file);
+  list.forEach(function (file) {
+    file = path.resolve(dir, file)
 
-    let stat;
+    let stat
     try {
-      stat = fs.statSync(file);
+      stat = fs.statSync(file)
     } catch (err) {
-      return done(err);
+      return done(err)
     }
 
     // If directory, execute a recursive call
     if (stat && stat.isDirectory()) {
       // Add directory to array [comment if you need to remove the directories from the array]
-      results.push(file);
+      results.push(file)
 
-      filewalker(file, function(err, res){
-        results = results.concat(res);
-        if (!--pending) done(null, results);
-      });
+      filewalker(file, function (err, res) {
+        results = results.concat(res)
+        if (!--pending) done(null, results)
+      })
     } else {
-      results.push(file);
+      results.push(file)
 
-      if (!--pending) done(null, results);
+      if (!--pending) done(null, results)
     }
-  });
-};
+  })
+}
 
 module.exports = preprocessor

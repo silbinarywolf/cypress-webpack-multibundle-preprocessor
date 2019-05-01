@@ -1,36 +1,31 @@
 {
-  "name": "@cypress/webpack-preprocessor",
-  "description": "Cypress preprocessor for bundling JavaScript via webpack",
+  "name": "cypress-webpack-multibundle-preprocessor",
+  "description": "Fork of the Cypress preprocessor for bundling JavaScript via webpack. Compiles and bundles all test files at once rather than per spec.",
   "version": "0.0.0-development",
-  "author": "Chris Breiding <chris@cypress.io>",
-  "bugs": "https://github.com/cypress-io/cypress-webpack-preprocessor/issues",
+  "author": "Jake Bentvelzen",
+  "bugs": "https://github.com/silbinarywolf/cypress-webpack-multibundle-preprocessor/issues",
   "files": [
     "*.js"
   ],
   "private": false,
-  "homepage": "https://github.com/cypress-io/cypress-webpack-preprocessor#readme",
+  "homepage": "https://github.com/silbinarywolf/cypress-webpack-multibundle-preprocessor#readme",
   "keywords": [
     "cypress",
     "cypress-plugin",
     "cypress-preprocessor",
-    "webpack"
+    "webpack",
+    "unit",
+    "test"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cypress-io/cypress-webpack-preprocessor.git"
+    "url": "https://github.com/silbinarywolf/cypress-webpack-multibundle-preprocessor.git"
   },
   "scripts": {
-    "ban": "ban",
-    "deps": "deps-ok && dependency-check --no-dev .",
-    "license": "license-checker --production --onlyunknown --csv",
     "lint": "eslint --fix *.js",
-    "pretest": "npm run lint",
-    "secure": "nsp check",
-    "size": "t=\"$(npm pack .)\"; wc -c \"${t}\"; tar tvf \"${t}\"; rm \"${t}\";",
-    "test": "mocha",
-    "test-watch": "chokidar '*.js' 'test/*.js' -c 'npm test'",
-    "semantic-release": "semantic-release pre && npm publish --access public && semantic-release post"
+    "test": "npm run lint",
+    "semantic-release": "semantic-release"
   },
   "devDependencies": {
     "@babel/core": "^7.0.1",
